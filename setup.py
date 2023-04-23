@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="geocoder-api-wrapper",
-    version="0.1.7",
+    version="0.1.92",
     author="Darien Nouri",
     author_email="dan9232@nyu.edu",
     description="A wrapper for the Census Geocoder API and Google Maps Geocoding API",
@@ -20,7 +20,8 @@ setup(
         "pandas==2.2.2",
         "pathlib2==2.3.7.post1",
         "urllib3==2.2.2",
-        "requests-toolbelt",
+        "requests-toolbelt==0.10.1",
+        "twine==5.1.1"
     ],
     entry_points={
         'console_scripts': [
