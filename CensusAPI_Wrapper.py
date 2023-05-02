@@ -1,12 +1,13 @@
 #%%
 import censusgeocode as cg
 import requests
+import pandas as pd
 
 
 def geocode_multi_batch(df, address_col: str, city_col: str, state_col: str, zip_col: str, batch_size: int = 500):
     """
     This function geocodes a list of addresses provided in a DataFrame, in chunks based on the batch_size.
-    
+
     :param df: DataFrame containing addresses to geocode.
     :param address_col: Name of the column in the input DataFrame containing the street address.
     :param city_col: Name of the column in the input DataFrame containing the city.
@@ -15,11 +16,11 @@ def geocode_multi_batch(df, address_col: str, city_col: str, state_col: str, zip
     :param batch_size: The size of each batch for geocoding. Default is 500.
     :return: List of DataFrames containing the original input data and the geocoded results.
     """
-    
+
     def create_batch(chunk):
         """
         Creates a batch for geocoding by subsetting the relevant columns.
-        
+
         :param chunk: DataFrame containing a chunk of addresses.
         :return: DataFrame with columns needed for geocoding.
         """
@@ -32,7 +33,7 @@ def geocode_multi_batch(df, address_col: str, city_col: str, state_col: str, zip
     def process_batch(batch, current_chunk_index):
         """
         Processes the batch by geocoding the addresses and returning the results.
-        
+
         :param batch: DataFrame containing a batch of addresses.
         :param current_chunk_index: Index of the current chunk being processed.
         :return: DataFrame with the geocoding results.
@@ -51,9 +52,7 @@ def geocode_multi_batch(df, address_col: str, city_col: str, state_col: str, zip
         output_df = chunk.merge(batch_output_df, on='id')
         output_dfs.append(output_df)
 
-    return output_dfs
-
-
+    return pd.concat(output_dfs, axis=0, ignore_index=True)
 
 def fetch_geocode_address(full_address=None, street=None, city=None, state=None):
     if street and city and state:
