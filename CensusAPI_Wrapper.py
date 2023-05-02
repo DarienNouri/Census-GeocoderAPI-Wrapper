@@ -3,6 +3,58 @@ import censusgeocode as cg
 import requests
 
 
+def geocode_multi_batch(df, address_col: str, city_col: str, state_col: str, zip_col: str, batch_size: int = 500):
+    """
+    This function geocodes a list of addresses provided in a DataFrame, in chunks based on the batch_size.
+    
+    :param df: DataFrame containing addresses to geocode.
+    :param address_col: Name of the column in the input DataFrame containing the street address.
+    :param city_col: Name of the column in the input DataFrame containing the city.
+    :param state_col: Name of the column in the input DataFrame containing the state.
+    :param zip_col: Name of the column in the input DataFrame containing the zip code.
+    :param batch_size: The size of each batch for geocoding. Default is 500.
+    :return: List of DataFrames containing the original input data and the geocoded results.
+    """
+    
+    def create_batch(chunk):
+        """
+        Creates a batch for geocoding by subsetting the relevant columns.
+        
+        :param chunk: DataFrame containing a chunk of addresses.
+        :return: DataFrame with columns needed for geocoding.
+        """
+        chunk['id'] = chunk.index
+        columns = [address_col, city_col, state_col, zip_col]
+        batch_input_df = chunk[columns].reset_index(drop=True)
+        batch_input_df.columns = ['street', 'city', 'state', 'zip']
+        return batch_input_df
+
+    def process_batch(batch, current_chunk_index):
+        """
+        Processes the batch by geocoding the addresses and returning the results.
+        
+        :param batch: DataFrame containing a batch of addresses.
+        :param current_chunk_index: Index of the current chunk being processed.
+        :return: DataFrame with the geocoding results.
+        """
+        batch_filename = f'current_chunk_{current_chunk_index}.csv'
+        batch.to_csv(batch_filename, index=True, header=False)
+        return pd.DataFrame.from_dict(cg.addressbatch(batch_filename))
+
+    chunks = [df[i:i + batch_size] for i in range(0, len(df), batch_size)]
+    output_dfs = []
+
+    for index, chunk in enumerate(chunks):
+        batch_input_df = create_batch(chunk)
+        batch_output_df = process_batch(batch_input_df, index)
+        batch_output_df['id'] = batch_output_df['id'].astype(int)
+        output_df = chunk.merge(batch_output_df, on='id')
+        output_dfs.append(output_df)
+
+    return output_dfs
+
+
+
 def fetch_geocode_address(full_address=None, street=None, city=None, state=None):
     if street and city and state:
         full_address = f'{street}, {city}, {state}'
