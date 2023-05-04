@@ -34,6 +34,7 @@ def geocode_multi_batch(df,
         :param chunk: DataFrame containing a chunk of addresses.
         :return: DataFrame with columns needed for geocoding.
         """
+        chunk.reset_index(drop=True,inplace=True)
         chunk['id'] = chunk.index
         columns = [address_col, city_col, state_col, zip_col]
         batch_input_df = chunk[columns].reset_index(drop=True)
@@ -53,24 +54,24 @@ def geocode_multi_batch(df,
         return pd.DataFrame.from_dict(cg.addressbatch(batch_filename))
 
     chunks = [df[i:i + batch_size] for i in range(0, len(df), batch_size)]
-    chunks.append(df[len(chunks)*batch_size:])
     output_dfs = []
 
     for index, chunk in enumerate(chunks):
+        
         batch_input_df = create_batch(chunk)
         batch_output_df = process_batch(batch_input_df, index)
         batch_output_df['id'] = batch_output_df['id'].astype(int)
         output_df = chunk.merge(batch_output_df, on='id')
         output_dfs.append(output_df)
+
         if auto_save:
             file_path = Path(save_path)
             if file_path.exists():
                 output_df.to_csv(file_path, index=False, header=False, mode='a')
             else:
                 output_df.to_csv(file_path, index=False, header=True, mode='w')
-        if index % 2 == 0:
+        if index % 2 == 0 and index != 0:
             print(f'Processed {index} of {len(chunks)} chunks.')
-
 
     return pd.concat(output_dfs, axis=0, ignore_index=True)
 
