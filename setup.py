@@ -22,6 +22,10 @@ setup(
         "requests-toolbelt==0.10.1",
         "twine==5.1.1",
         "urllib3==2.2.2",
-        "appengine-python-standard"
     ],
+    entry_points={
+        'console_scripts': [
+            'post-install = geocoder_wrapper.post_install:main',
+        ],
+    },
 )
