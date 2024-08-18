@@ -42,6 +42,7 @@ def geocode_multi_batch(df,
         return batch_input_df
 
     def process_batch(batch, current_chunk_index):
+        print("Processing batch")
         """
         Processes the batch by geocoding the addresses and returning the results.
 
@@ -95,7 +96,7 @@ def extract_data(data, main_key, sub_keys):
 def build_geographical_dict(data):
     data_dict = extract_data(data, "States", ["STATE", "BASENAME"])
     data_dict.update(extract_data(data, "Incorporated Places", ["NAME"]))
-    data_dict.update(extract_data(data, "2020 Census Blocks", ["BLOCK", "CENTLAT", "CENTLON", "AREALAND"]))
+    data_dict.update(extract_data(data, "2020 Census Blocks", ["BLOCK", "CENTLAT", "CENTLON", "AREALAND","TRACT"]))
     data_dict.update(extract_data(data, "Census Tracts", ["BASENAME"]))
     data_dict["BLOCK_CENTER"] = (float(data_dict["CENTLAT"][1:]), float(data_dict["CENTLON"]))
     return data_dict
