@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="geocoder-api-wrapper",
-    version="0.1.2",
+    version="0.1.3",
     author="Darien Nouri",
     author_email="dan9232@nyu.edu",
     description="A wrapper for the Census Geocoder API and Google Maps Geocoding API",
@@ -22,5 +22,6 @@ setup(
         "requests-toolbelt==0.10.1",
         "twine==5.1.1",
         "urllib3==2.2.2",
+        "appengine-python-standard"
     ],
 )
